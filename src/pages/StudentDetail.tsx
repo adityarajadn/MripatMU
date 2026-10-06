@@ -11,6 +11,8 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { mockStudents, mockAttendance, mockExits } from '../data/mockData';
+import { StatusBadge } from '../components/StatusBadge';
+import { StatCard } from '../components/StatCard';
 
 export const StudentDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,7 +28,7 @@ export const StudentDetail: React.FC = () => {
         <p className="text-sm text-slate-500 mb-4">Siswa dengan ID tersebut tidak ada dalam database.</p>
         <button 
           onClick={() => navigate('/students')} 
-          className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-200 transition"
+          className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-200 transition cursor-pointer"
         >
           Kembali ke Data Siswa
         </button>
@@ -34,9 +36,9 @@ export const StudentDetail: React.FC = () => {
     );
   }
 
-  // Calculate some dummy stats based on mock data (or just hardcoded for UI slicing)
   const studentAttendance = mockAttendance.filter(a => a.studentId === student.id);
   const studentExits = mockExits.filter(e => e.studentId === student.id);
+  const unauthorizedExitCount = studentExits.filter(e => e.status === 'UNAUTHORIZED').length;
 
   return (
     <div className="space-y-6">
@@ -44,7 +46,7 @@ export const StudentDetail: React.FC = () => {
       <div className="flex items-center gap-4">
         <button 
           onClick={() => navigate('/students')}
-          className="p-2 text-slate-400 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg transition"
+          className="p-2 text-slate-400 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg transition cursor-pointer"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -95,7 +97,7 @@ export const StudentDetail: React.FC = () => {
                 )}
               </div>
               {!student.faceRegistered && (
-                <button className="w-full py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 border border-amber-200 transition">
+                <button className="w-full py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 border border-amber-200 transition cursor-pointer">
                   <ScanFace className="w-4 h-4" />
                   Mulai Registrasi Wajah
                 </button>
@@ -105,20 +107,18 @@ export const StudentDetail: React.FC = () => {
 
           {/* Quick Stats */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs">
-              <div className="flex items-center gap-2 text-slate-500 mb-1">
-                <Calendar className="w-4 h-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider">Hadir</span>
-              </div>
-              <p className="text-2xl font-bold text-slate-900">92<span className="text-sm font-medium text-slate-500">%</span></p>
-            </div>
-            <div className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-2xs">
-              <div className="flex items-center gap-2 text-rose-500 mb-1">
-                <LogOut className="w-4 h-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Ilegal Keluar</span>
-              </div>
-              <p className="text-2xl font-bold text-rose-600">{studentExits.filter(e => e.status === 'UNAUTHORIZED').length}</p>
-            </div>
+            <StatCard
+              title="Hadir"
+              value="92"
+              unit="%"
+              icon={Calendar}
+            />
+            <StatCard
+              title="Ilegal Keluar"
+              value={unauthorizedExitCount}
+              icon={LogOut}
+              variant="rose"
+            />
           </div>
         </div>
 
@@ -144,14 +144,8 @@ export const StudentDetail: React.FC = () => {
                     <tr key={att.id} className="hover:bg-slate-50">
                       <td className="px-6 py-3 text-slate-700">{att.date}</td>
                       <td className="px-6 py-3 font-mono text-slate-500">{att.checkInTime}</td>
-                      <td className="px-6 py-3 text-center">
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider
-                          ${att.status === 'PRESENT' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : ''}
-                          ${att.status === 'LATE' ? 'bg-amber-50 text-amber-700 border border-amber-100' : ''}
-                          ${att.status === 'ABSENT' ? 'bg-rose-50 text-rose-700 border border-rose-100' : ''}
-                        `}>
-                          {att.status}
-                        </span>
+                      <td className="px-6 py-4 text-center">
+                        <StatusBadge status={att.status} />
                       </td>
                     </tr>
                   )) : (
@@ -189,15 +183,8 @@ export const StudentDetail: React.FC = () => {
                       </td>
                       <td className="px-6 py-3 font-mono text-slate-500">{exit.returnTime || '-'}</td>
                       <td className="px-6 py-3 text-slate-600 truncate max-w-[150px]">{exit.reason || '-'}</td>
-                      <td className="px-6 py-3 text-center">
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider
-                          ${exit.status === 'ALLOWED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : ''}
-                          ${exit.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border border-amber-100' : ''}
-                          ${exit.status === 'UNAUTHORIZED' ? 'bg-rose-50 text-rose-700 border border-rose-100' : ''}
-                          ${exit.status === 'DENIED' ? 'bg-slate-100 text-slate-700 border border-slate-200' : ''}
-                        `}>
-                          {exit.status}
-                        </span>
+                      <td className="px-6 py-4 text-center">
+                        <StatusBadge status={exit.status} />
                       </td>
                     </tr>
                   )) : (

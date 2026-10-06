@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { mockExits } from '../data/mockData';
 import type { ExitEvent } from '../types';
+import { StatusBadge } from '../components/StatusBadge';
 
 export const Exits: React.FC = () => {
   const [exits, setExits] = useState<ExitEvent[]>(mockExits);
@@ -74,7 +75,7 @@ export const Exits: React.FC = () => {
                     </div>
                     <button 
                       onClick={() => handleAllow(item.id)}
-                      className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-lg transition"
+                      className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-lg transition cursor-pointer"
                     >
                       Beri Izin
                     </button>
@@ -123,14 +124,14 @@ export const Exits: React.FC = () => {
                 <div className="flex gap-2 pt-2 border-t border-amber-100">
                   <button 
                     onClick={() => handleAllow(item.id)}
-                    className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition"
+                    className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
                     Izinkan Keluar
                   </button>
                   <button 
                     onClick={() => handleDeny(item.id)}
-                    className="py-2 px-3 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition"
+                    className="py-2 px-3 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                     Tolak
@@ -174,12 +175,7 @@ export const Exits: React.FC = () => {
                   <td className="px-6 py-4 text-slate-600">{item.reason}</td>
                   <td className="px-6 py-4 text-slate-500">{item.authorizedBy || '-'}</td>
                   <td className="px-6 py-4 text-center">
-                    <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold
-                      ${item.status === 'ALLOWED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : ''}
-                      ${item.status === 'DENIED' ? 'bg-rose-50 text-rose-700 border border-rose-100' : ''}
-                    `}>
-                      {item.status === 'ALLOWED' ? 'Diizinkan' : 'Ditolak'}
-                    </span>
+                    <StatusBadge status={item.status} />
                   </td>
                 </tr>
               ))}
